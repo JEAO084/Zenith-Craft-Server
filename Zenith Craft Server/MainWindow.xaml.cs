@@ -72,7 +72,7 @@ namespace Zenith_Craft_Server
         }
         internal void ApplyBackdrop()
         {
-            var backdrop = App.Current.SettingsService.Settings.Backdrop;
+            int backdrop = App.Current.SettingsService.Settings.Backdrop;
             if (backdrop == 0)
                 SystemBackdrop = new MicaSystemBackdrop(MicaKind.Base);
             else if (backdrop == 1)
