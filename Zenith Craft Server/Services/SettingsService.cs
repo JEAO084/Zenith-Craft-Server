@@ -3,6 +3,7 @@ using System.IO;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Zenith_Craft_Server.Models;
 
 namespace Zenith_Craft_Server.Services
 {
@@ -18,7 +19,7 @@ namespace Zenith_Craft_Server.Services
         private readonly string _folderPath;
         private readonly string _filePath;
 
-        // Semáforo para evitar que dos guardados choquen al mismo tiempo (IOException)
+        // MODIFICADO: Semáforo para prevenir accesos concurrentes al archivo de configuración.
         private readonly SemaphoreSlim _saveLock = new(1, 1);
 
         public AppSettings Settings { get; private set; } = new();
@@ -26,14 +27,14 @@ namespace Zenith_Craft_Server.Services
 
         public SettingsService()
         {
-            // Ruta: C:\Users\<Usuario>\AppData\Local\Zenith.C.S
+            // MODIFICADO: Ruta de almacenamiento en LocalAppData\Zenith.C.S\settings.json
             _folderPath = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 "Zenith.C.S");
 
             _filePath = Path.Combine(_folderPath, "settings.json");
 
-            // Crea la carpeta si no existe
+            // Asegura la existencia del directorio objetivo
             Directory.CreateDirectory(_folderPath);
         }
 
@@ -47,7 +48,7 @@ namespace Zenith_Craft_Server.Services
                 if (!File.Exists(_filePath))
                 {
                     Settings = new AppSettings();
-                    await SaveAsync(); // Crea el archivo con defaults
+                    await SaveAsync();
                     return;
                 }
 
@@ -57,12 +58,12 @@ namespace Zenith_Craft_Server.Services
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[Settings] Load failed: {ex.Message}");
-                Settings = new AppSettings(); // Fallback seguro
+                Settings = new AppSettings();
             }
         }
 
         /// <summary>
-        /// Guarda el estado actual en disco de forma asíncrona (seguro para llamar desde UI).
+        /// Guarda el estado actual en disco de forma asíncrona.
         /// </summary>
         public async Task SaveAsync()
         {
@@ -84,8 +85,7 @@ namespace Zenith_Craft_Server.Services
         }
 
         /// <summary>
-        /// Guarda de forma síncrona. Úsalo ÚNICAMENTE en el evento Closed de la ventana
-        /// para asegurar que el archivo se escriba antes de que el proceso muera.
+        /// Guarda de forma síncrona (usado al cerrar la aplicación).
         /// </summary>
         public void SaveSync()
         {
@@ -107,7 +107,7 @@ namespace Zenith_Craft_Server.Services
         }
 
         /// <summary>
-        /// Borra el archivo y vuelve a valores por defecto.
+        /// Restablece la configuración a sus valores por defecto y guarda los cambios.
         /// </summary>
         public async Task ResetAsync()
         {

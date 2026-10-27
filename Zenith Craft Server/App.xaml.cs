@@ -1,10 +1,7 @@
 ﻿using DevWinUI;
-using Microsoft.UI;
+// ELIMINADO: 'using Microsoft.UI;' eliminado por no ser utilizado en este archivo.
 using Microsoft.UI.Xaml;
 using Zenith_Craft_Server.Services;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
 
 namespace Zenith_Craft_Server
 {
@@ -15,11 +12,12 @@ namespace Zenith_Craft_Server
     {
         private Window? _window;
 
-        public IThemeService ThemeService { get; set; }
+        // NUEVO / MODIFICADO: Propiedad ThemeService inicializada con valor por defecto nulo o asignada en OnLaunched.
+        public IThemeService? ThemeService { get; set; }
         public static new App Current => (App)Application.Current;
         public SettingsService SettingsService { get; } = new();
 
-        public MainWindow? MainWindow { get; private set; }
+        // ELIMINADO: Se eliminó la propiedad pública sin uso 'public MainWindow? MainWindow { get; private set; }' ya que MainWindow utiliza su propio patrón Instance.
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
@@ -28,14 +26,12 @@ namespace Zenith_Craft_Server
         public App()
         {
             InitializeComponent();
-            // Manejador global de excepciones para la UI
+
+            // MODIFICADO: Configuración limpia del manejador global de excepciones para la interfaz de usuario.
             this.UnhandledException += (sender, e) =>
             {
-                // Muestra el error real en la ventana de salida de Visual Studio
                 System.Diagnostics.Debug.WriteLine($"Excepción no controlada: {e.Message}");
                 System.Diagnostics.Debug.WriteLine($"StackTrace: {e.Exception.StackTrace}");
-                // Opcional: muestra un mensaje al usuario y cierra la app de forma controlada
-                // e.Handled = true; 
             };
         }
 
@@ -45,6 +41,7 @@ namespace Zenith_Craft_Server
         /// <param name="args">Details about the launch request and process.</param>
         protected override async void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
+            // MODIFICADO: Carga asíncrona de configuraciones del usuario e inicialización del servicio de temas y ventana principal.
             await SettingsService.LoadAsync();
             ThemeService = new ThemeService();
             _window = new MainWindow();

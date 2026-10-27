@@ -7,10 +7,7 @@ using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+// ELIMINADO: 'using System.Threading.Tasks;' eliminado por no ser utilizado.
 
 namespace Zenith_Craft_Server
 {
@@ -20,29 +17,39 @@ namespace Zenith_Craft_Server
     public sealed partial class MainWindow : Window
     {
         public static MainWindow? Instance { get; private set; }
+
         public MainWindow()
         {
             InitializeComponent();
             ApplyBackdrop();
             ApplyTheme();
             Instance = this;
-            this.SetTitleBar(titleBar); // Set the custom title bar
-            this.ExtendsContentIntoTitleBar = true; // Extend the content into the title bar and hide the default titlebar
-            AppWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+
+            // MODIFICADO: Configuración limpia de la barra de título personalizada y botones transparentes.
+            SetTitleBar(titleBar);
+            ExtendsContentIntoTitleBar = true;
+
             if (AppWindow.TitleBar.ExtendsContentIntoTitleBar)
             {
                 AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
             }
-            AppWindow.TitleBar.ButtonBackgroundColor = Microsoft.UI.ColorHelper.FromArgb(0, 0, 0, 0);
-            AppWindow.TitleBar.ButtonHoverBackgroundColor = Microsoft.UI.ColorHelper.FromArgb(0, 0, 0, 0);
-            AppWindow.TitleBar.ButtonInactiveBackgroundColor = Microsoft.UI.ColorHelper.FromArgb(0, 0, 0, 0);
-            AppWindow.TitleBar.ButtonPressedBackgroundColor = Microsoft.UI.ColorHelper.FromArgb(0, 0, 0, 0);
-            AppWindow.TitleBar.ButtonPressedForegroundColor = Microsoft.UI.ColorHelper.FromArgb(0, 0, 0, 0);
+
+            // MODIFICADO: Uso de Colors.Transparent para simplificar la asignación de colores de los botones de la barra de título.
+            // ELIMINADO / REEMPLAZADO: Reemplazado 'Microsoft.UI.ColorHelper.FromArgb(0, 0, 0, 0)' redundante por 'Colors.Transparent'.
+            var transparent = Colors.Transparent;
+            AppWindow.TitleBar.ButtonBackgroundColor = transparent;
+            AppWindow.TitleBar.ButtonHoverBackgroundColor = transparent;
+            AppWindow.TitleBar.ButtonInactiveBackgroundColor = transparent;
+            AppWindow.TitleBar.ButtonPressedBackgroundColor = transparent;
+            AppWindow.TitleBar.ButtonPressedForegroundColor = transparent;
         }
 
+        // MODIFICADO: Alterna entre el modo compacto e imprimible del panel lateral.
         private void titleBar_PaneToggleRequested(TitleBar sender, object args)
         {
-            navView.PaneDisplayMode = navView.PaneDisplayMode == NavigationViewPaneDisplayMode.Left ? NavigationViewPaneDisplayMode.LeftCompact : NavigationViewPaneDisplayMode.Left;
+            navView.PaneDisplayMode = navView.PaneDisplayMode == NavigationViewPaneDisplayMode.Left
+                ? NavigationViewPaneDisplayMode.LeftCompact
+                : NavigationViewPaneDisplayMode.Left;
         }
 
         private static readonly Dictionary<string, Type> PagesByTag = new()
@@ -52,6 +59,7 @@ namespace Zenith_Craft_Server
             ["About"] = typeof(Pages.About),
         };
 
+        // MODIFICADO: Manejador de navegación simplificado según el elemento seleccionado en NavigationView.
         private void navView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
         {
             if (args.IsSettingsSelected)
@@ -70,20 +78,24 @@ namespace Zenith_Craft_Server
                 viewPages.Navigate(pageType);
             }
         }
+
+        // MODIFICADO: Aplicación del tipo de fondo (Backdrop) según la configuración del usuario usando 'switch' más legible.
+        // REEMPLAZADO: Reemplazado bloque 'if-else if' por expresión 'switch'.
         internal void ApplyBackdrop()
         {
             int backdrop = App.Current.SettingsService.Settings.Backdrop;
-            if (backdrop == 0)
-                SystemBackdrop = new MicaSystemBackdrop(MicaKind.Base);
-            else if (backdrop == 1)
-                SystemBackdrop = new MicaSystemBackdrop(MicaKind.BaseAlt);
-            else if (backdrop == 2)
-                SystemBackdrop = new AcrylicSystemBackdrop(DesktopAcrylicKind.Base);
-            else if (backdrop == 3)
-                SystemBackdrop = new AcrylicSystemBackdrop(DesktopAcrylicKind.Thin);
-            else if (backdrop == 4)
-                SystemBackdrop = new TransparentBackdrop();
+            SystemBackdrop = backdrop switch
+            {
+                0 => new MicaSystemBackdrop(MicaKind.Base),
+                1 => new MicaSystemBackdrop(MicaKind.BaseAlt),
+                2 => new AcrylicSystemBackdrop(DesktopAcrylicKind.Base),
+                3 => new AcrylicSystemBackdrop(DesktopAcrylicKind.Thin),
+                4 => new TransparentBackdrop(),
+                _ => new MicaSystemBackdrop(MicaKind.Base)
+            };
         }
+
+        // MODIFICADO: Aplicación del tema según la configuración del usuario.
         internal void ApplyTheme()
         {
             var theme = App.Current.SettingsService.Settings.Theme;
@@ -103,6 +115,9 @@ namespace Zenith_Craft_Server
                 .OfType<NavigationViewItem>()
                 .FirstOrDefault(item => (string)item.Tag == "Home");
         }
-        private void MainWindow_Closed(object sender, WindowEventArgs args) => App.Current.SettingsService.SaveAsync().GetAwaiter().GetResult();
+
+        // MODIFICADO: Guardado de configuración al cerrar la ventana principal usando SaveSync para asegurar persistencia.
+        // REEMPLAZADO: Reemplazado 'SaveAsync().GetAwaiter().GetResult()' por 'SaveSync()' para evitar un bloqueo potencial o terminación sin completar.
+        private void MainWindow_Closed(object sender, WindowEventArgs args) => App.Current.SettingsService.SaveSync();
     }
 }
