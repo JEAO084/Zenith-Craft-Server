@@ -1,118 +1,128 @@
 ﻿using System;
+using System.ComponentModel;
 using System.IO;
 using System.Text.Json;
 using System.Threading;
-using System.Threading.Tasks;
 using Zenith_Craft_Server.Models;
 
-namespace Zenith_Craft_Server.Services
+namespace Zenith_Craft_Server.Services;
+
+public static class SettingsService
 {
-    public class SettingsService
+    private const string AppFolderName = "MiApp";
+    private const string SettingsFileName = "settings.json";
+
+    private static readonly string SettingsFolder = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        AppFolderName);
+
+    private static readonly string SettingsFilePath = Path.Combine(SettingsFolder, SettingsFileName);
+
+    private static readonly JsonSerializerOptions JsonOptions = new()
     {
-        private static readonly JsonSerializerOptions JsonOptions = new()
+        WriteIndented = true,
+        PropertyNameCaseInsensitive = true
+    };
+
+    private static AppSettings? _cachedSettings;
+
+    // Debounce para no escribir en disco en cada tecla/cambio rápido
+    private static Timer? _saveTimer;
+    private static readonly object _saveLock = new();
+
+    /// <summary>
+    /// Carga los ajustes desde disco. Si no existe el archivo o hay error,
+    /// devuelve valores por defecto. Registra auto-guardado en cada cambio.
+    /// </summary>
+    public static AppSettings Load()
+    {
+        if (_cachedSettings is not null)
+            return _cachedSettings;
+
+        AppSettings loaded;
+        try
         {
-            WriteIndented = true,
-            PropertyNameCaseInsensitive = true,
-            ReadCommentHandling = JsonCommentHandling.Skip,
-        };
-
-        private readonly string _folderPath;
-        private readonly string _filePath;
-
-        // MODIFICADO: Semáforo para prevenir accesos concurrentes al archivo de configuración.
-        private readonly SemaphoreSlim _saveLock = new(1, 1);
-
-        public AppSettings Settings { get; private set; } = new();
-        public string FilePath => _filePath;
-
-        public SettingsService()
-        {
-            // MODIFICADO: Ruta de almacenamiento en LocalAppData\Zenith.C.S\settings.json
-            _folderPath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "Zenith.C.S");
-
-            _filePath = Path.Combine(_folderPath, "settings.json");
-
-            // Asegura la existencia del directorio objetivo
-            Directory.CreateDirectory(_folderPath);
-        }
-
-        /// <summary>
-        /// Carga el archivo si existe; si no, devuelve valores por defecto y crea el archivo.
-        /// </summary>
-        public async Task LoadAsync()
-        {
-            try
+            if (File.Exists(SettingsFilePath))
             {
-                if (!File.Exists(_filePath))
-                {
-                    Settings = new AppSettings();
-                    await SaveAsync();
-                    return;
-                }
-
-                string json = await File.ReadAllTextAsync(_filePath);
-                Settings = JsonSerializer.Deserialize<AppSettings>(json, JsonOptions) ?? new AppSettings();
+                var json = File.ReadAllText(SettingsFilePath);
+                loaded = JsonSerializer.Deserialize<AppSettings>(json, JsonOptions)
+                         ?? new AppSettings();
             }
-            catch (Exception ex)
+            else
             {
-                System.Diagnostics.Debug.WriteLine($"[Settings] Load failed: {ex.Message}");
-                Settings = new AppSettings();
+                loaded = new AppSettings();
             }
         }
-
-        /// <summary>
-        /// Guarda el estado actual en disco de forma asíncrona.
-        /// </summary>
-        public async Task SaveAsync()
+        catch
         {
-            await _saveLock.WaitAsync();
-            try
-            {
-                Directory.CreateDirectory(_folderPath);
-                string json = JsonSerializer.Serialize(Settings, JsonOptions);
-                await File.WriteAllTextAsync(_filePath, json);
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"[Settings] Save failed: {ex.Message}");
-            }
-            finally
-            {
-                _saveLock.Release();
-            }
+            loaded = new AppSettings();
         }
 
-        /// <summary>
-        /// Guarda de forma síncrona (usado al cerrar la aplicación).
-        /// </summary>
-        public void SaveSync()
-        {
-            _saveLock.Wait();
-            try
-            {
-                Directory.CreateDirectory(_folderPath);
-                string json = JsonSerializer.Serialize(Settings, JsonOptions);
-                File.WriteAllText(_filePath, json);
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"[Settings] SaveSync failed: {ex.Message}");
-            }
-            finally
-            {
-                _saveLock.Release();
-            }
-        }
+        // 🔑 Auto-save: cualquier cambio en una propiedad programa un guardado
+        loaded.PropertyChanged += OnSettingsChanged;
 
-        /// <summary>
-        /// Restablece la configuración a sus valores por defecto y guarda los cambios.
-        /// </summary>
-        public async Task ResetAsync()
+        _cachedSettings = loaded;
+        return loaded;
+    }
+
+    /// <summary>
+    /// Fuerza un guardado inmediato (normalmente no necesitas llamarlo).
+    /// </summary>
+    public static void Save(AppSettings settings)
+    {
+        try
         {
-            Settings = new AppSettings();
-            await SaveAsync();
+            Directory.CreateDirectory(SettingsFolder);
+            var json = JsonSerializer.Serialize(settings, JsonOptions);
+            File.WriteAllText(SettingsFilePath, json);
         }
+        catch
+        {
+            // Silencioso: un fallo de escritura no debe romper la app.
+        }
+    }
+
+    /// <summary>
+    /// Programa un guardado con debounce (500 ms tras el último cambio).
+    /// </summary>
+    private static void OnSettingsChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (sender is not AppSettings settings) return;
+
+        lock (_saveLock)
+        {
+            _saveTimer?.Dispose();
+            _saveTimer = new Timer(
+                _ => Save(settings),
+                null,
+                dueTime: 500,
+                period: Timeout.Infinite);
+        }
+    }
+
+    /// <summary>
+    /// Ruta lógica del archivo (útil para depurar).
+    /// </summary>
+    public static string GetSettingsFilePath() => SettingsFilePath;
+
+    /// <summary>
+    /// Borra todos los ajustes y restaura valores por defecto.
+    /// </summary>
+    public static AppSettings Reset()
+    {
+        try
+        {
+            if (File.Exists(SettingsFilePath))
+                File.Delete(SettingsFilePath);
+        }
+        catch { /* silencioso */ }
+
+        if (_cachedSettings is not null)
+            _cachedSettings.PropertyChanged -= OnSettingsChanged;
+
+        var fresh = new AppSettings();
+        fresh.PropertyChanged += OnSettingsChanged;
+        _cachedSettings = fresh;
+        return fresh;
     }
 }

@@ -15,15 +15,17 @@
 
             <dev:SettingsCard Description="Cambiar el tema de Zenith Craft Server" Header="Tema">
                 <dev:SettingsCard.HeaderIcon>
-                    <FontIcon Glyph="&#xE793;"/>
+                    <FontIcon Glyph="&#xE793;" />
                 </dev:SettingsCard.HeaderIcon>
                 <ComboBox
                     x:Name="selectTheme"
                     Width="200"
                     SelectionChanged="selectTheme_SelectionChanged">
-                    <x:String>Oscuro</x:String>
-                    <x:String>Por Defecto</x:String>
-                    <x:String>Claro</x:String>
+                    <ComboBox.Items>
+                        <ComboBoxItem Content="Claro" Tag="Light" />
+                        <ComboBoxItem Content="Oscuro" Tag="Dark" />
+                        <ComboBoxItem Content="Por Defecto" Tag="Default" />
+                    </ComboBox.Items>
                 </ComboBox>
             </dev:SettingsCard>
             <dev:SettingsCard Description="Cambiar Visualmente Zenith Craft Server" Header="Tipo de Fondo">
@@ -34,11 +36,13 @@
                     x:Name="selectBackdrop"
                     Width="200"
                     SelectionChanged="selectBackdrop_SelectionChanged">
-                    <x:String>Mica</x:String>
-                    <x:String>Mica Alt</x:String>
-                    <x:String>Acrylic</x:String>
-                    <x:String>Acrilic Thin</x:String>
-                    <x:String>Transparent</x:String>
+                    <ComboBox.Items>
+                        <ComboBoxItem Content="Mica" Tag="Mica" />
+                        <ComboBoxItem Content="Mica Alt" Tag="MicaAlt" />
+                        <ComboBoxItem Content="Acrylic" Tag="Acrylic" />
+                        <ComboBoxItem Content="Acrilic Thin" Tag="AcrylicThin" />
+                        <ComboBoxItem Content="Transparent" Tag="Transparent" />
+                    </ComboBox.Items>
                 </ComboBox>
             </dev:SettingsCard>
         </StackPanel>

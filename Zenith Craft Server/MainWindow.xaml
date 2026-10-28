@@ -8,7 +8,7 @@
     xmlns:local="using:Zenith_Craft_Server"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Title="Zenith Craft Server"
-    mc:Ignorable="d" Closed="MainWindow_Closed">
+    mc:Ignorable="d">
     <Grid x:Name="rootWindows">
         <Grid>
             <Grid.RowDefinitions>
@@ -68,6 +68,11 @@
                         Content="Inicio"
                         Icon="Home"
                         Tag="Home" />
+                    <NavigationViewItem
+                        Content="Crear"
+                        Icon="More"
+                        Tag="CreateServer"
+                        Visibility="Collapsed"/>
                 </NavigationView.MenuItems>
                 <Frame x:Name="viewPages" />
             </NavigationView>

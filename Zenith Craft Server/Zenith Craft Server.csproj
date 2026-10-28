@@ -17,6 +17,7 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Pages\About.xaml" />
+    <None Remove="Pages\CreateServer.xaml" />
     <None Remove="Pages\Home.xaml" />
     <None Remove="Pages\Settings.xaml" />
   </ItemGroup>
@@ -50,6 +51,11 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Helpers\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Pages\CreateServer.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="Pages\About.xaml">

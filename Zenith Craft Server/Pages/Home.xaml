@@ -11,6 +11,18 @@
     mc:Ignorable="d">
 
     <Grid>
-        
+        <Grid VerticalAlignment="Center">
+            <StackPanel>
+
+                <TextBlock HorizontalAlignment="Center" Text="Crea tu Primer servidor" Padding="10"/>
+                <Button
+                    x:Name="CreateSerber"
+                    Padding="20"
+                    HorizontalAlignment="Center"
+                    Content="Crear SERVER"
+                    FontSize="20" 
+                    Click="CreateSerber_Click"  />
+            </StackPanel>
+        </Grid>
     </Grid>
 </Page>

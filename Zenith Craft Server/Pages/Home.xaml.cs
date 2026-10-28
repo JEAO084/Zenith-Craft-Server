@@ -8,8 +8,15 @@ namespace Zenith_Craft_Server.Pages;
 /// </summary>
 public sealed partial class Home : Page
 {
+    private static MainWindow? Window => (MainWindow?)App.MainWindowInstance;
+
     public Home()
     {
         InitializeComponent();
+    }
+
+    private void CreateSerber_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        Window?.SelectNavigationItem("CreateServer");
     }
 }

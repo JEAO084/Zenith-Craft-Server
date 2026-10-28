@@ -7,7 +7,8 @@ using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-// ELIMINADO: 'using System.Threading.Tasks;' eliminado por no ser utilizado.
+using Zenith_Craft_Server.Models;
+using Zenith_Craft_Server.Services;
 
 namespace Zenith_Craft_Server
 {
@@ -16,46 +17,45 @@ namespace Zenith_Craft_Server
     /// </summary>
     public sealed partial class MainWindow : Window
     {
+        private readonly AppSettings Settingz = SettingsService.Load();
         public static MainWindow? Instance { get; private set; }
 
         public MainWindow()
         {
             InitializeComponent();
-            ApplyBackdrop();
-            ApplyTheme();
+            LoadStateBack();
             Instance = this;
-
-            // MODIFICADO: Configuración limpia de la barra de título personalizada y botones transparentes.
             SetTitleBar(titleBar);
             ExtendsContentIntoTitleBar = true;
-
-            if (AppWindow.TitleBar.ExtendsContentIntoTitleBar)
-            {
-                AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
-            }
-
-            // MODIFICADO: Uso de Colors.Transparent para simplificar la asignación de colores de los botones de la barra de título.
-            // ELIMINADO / REEMPLAZADO: Reemplazado 'Microsoft.UI.ColorHelper.FromArgb(0, 0, 0, 0)' redundante por 'Colors.Transparent'.
-            var transparent = Colors.Transparent;
-            AppWindow.TitleBar.ButtonBackgroundColor = transparent;
-            AppWindow.TitleBar.ButtonHoverBackgroundColor = transparent;
-            AppWindow.TitleBar.ButtonInactiveBackgroundColor = transparent;
-            AppWindow.TitleBar.ButtonPressedBackgroundColor = transparent;
-            AppWindow.TitleBar.ButtonPressedForegroundColor = transparent;
+            AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
+            var x = Colors.Transparent;
+            AppWindow.TitleBar.ButtonBackgroundColor = x;
+            AppWindow.TitleBar.ButtonHoverBackgroundColor = x;
+            AppWindow.TitleBar.ButtonInactiveBackgroundColor = x;
+            AppWindow.TitleBar.ButtonPressedBackgroundColor = x;
+            AppWindow.TitleBar.ButtonPressedForegroundColor = x;
         }
 
-        // MODIFICADO: Alterna entre el modo compacto e imprimible del panel lateral.
+        public void LoadStateBack()
+        {
+            // -- Theme + Backdrop --
+            ApplyBackdrop();
+            ApplyBackdrop();
+            // -- Controls --
+            navView.PaneDisplayMode = Settingz.ExPanel;
+        }
+
         private void titleBar_PaneToggleRequested(TitleBar sender, object args)
         {
-            navView.PaneDisplayMode = navView.PaneDisplayMode == NavigationViewPaneDisplayMode.Left
-                ? NavigationViewPaneDisplayMode.LeftCompact
-                : NavigationViewPaneDisplayMode.Left;
+            navView.PaneDisplayMode = navView.PaneDisplayMode == NavigationViewPaneDisplayMode.Left ? NavigationViewPaneDisplayMode.LeftCompact : NavigationViewPaneDisplayMode.Left;
+            Settingz.ExPanel = navView.PaneDisplayMode;
         }
 
         private static readonly Dictionary<string, Type> PagesByTag = new()
         {
             ["Home"] = typeof(Pages.Home),
             ["Settings"] = typeof(Pages.Settings),
+            ["CreateServer"] = typeof(Pages.CreateServer),
             ["About"] = typeof(Pages.About),
         };
 
@@ -83,30 +83,36 @@ namespace Zenith_Craft_Server
         // REEMPLAZADO: Reemplazado bloque 'if-else if' por expresión 'switch'.
         internal void ApplyBackdrop()
         {
-            int backdrop = App.Current.SettingsService.Settings.Backdrop;
-            SystemBackdrop = backdrop switch
+            SystemBackdrop = Settingz.Backdrop switch
             {
-                0 => new MicaSystemBackdrop(MicaKind.Base),
-                1 => new MicaSystemBackdrop(MicaKind.BaseAlt),
-                2 => new AcrylicSystemBackdrop(DesktopAcrylicKind.Base),
-                3 => new AcrylicSystemBackdrop(DesktopAcrylicKind.Thin),
-                4 => new TransparentBackdrop(),
-                _ => new MicaSystemBackdrop(MicaKind.Base)
+                "Mica" => new MicaSystemBackdrop(MicaKind.Base),
+                "MicaAlt" => new MicaSystemBackdrop(MicaKind.BaseAlt),
+                "Acrylic" => new AcrylicSystemBackdrop(DesktopAcrylicKind.Base),
+                "AcrylicThin" => new AcrylicSystemBackdrop(DesktopAcrylicKind.Thin),
+                "Transparent" => new TransparentBackdrop(),
+                _ => new AcrylicSystemBackdrop(DesktopAcrylicKind.Base)
             };
         }
 
         // MODIFICADO: Aplicación del tema según la configuración del usuario.
         internal void ApplyTheme()
         {
-            var theme = App.Current.SettingsService.Settings.Theme;
-            var requestedTheme = theme switch
+            rootWindows.RequestedTheme = Settingz.Theme switch
             {
-                0 => ElementTheme.Dark,
-                1 => ElementTheme.Default,
-                2 => ElementTheme.Light,
-                _ => ElementTheme.Default,   // "Default" = sigue al sistema
+                "Dark" => ElementTheme.Dark,
+                "Default" => ElementTheme.Default,
+                "Light" => ElementTheme.Light,
+                _ => ElementTheme.Default   // "Default" = sigue al sistema
             };
-            rootWindows.RequestedTheme = requestedTheme;
+        }
+        public void SelectNavigationItem(string tag)
+        {
+            var item = navView.MenuItems
+                .OfType<NavigationViewItem>()
+                .FirstOrDefault(i => (i.Tag as string) == tag);
+
+            if (item is not null)
+                navView.SelectedItem = item;
         }
 
         private void serverSelect_Click(SplitButton sender, SplitButtonClickEventArgs args)
@@ -115,9 +121,5 @@ namespace Zenith_Craft_Server
                 .OfType<NavigationViewItem>()
                 .FirstOrDefault(item => (string)item.Tag == "Home");
         }
-
-        // MODIFICADO: Guardado de configuración al cerrar la ventana principal usando SaveSync para asegurar persistencia.
-        // REEMPLAZADO: Reemplazado 'SaveAsync().GetAwaiter().GetResult()' por 'SaveSync()' para evitar un bloqueo potencial o terminación sin completar.
-        private void MainWindow_Closed(object sender, WindowEventArgs args) => App.Current.SettingsService.SaveSync();
     }
 }
