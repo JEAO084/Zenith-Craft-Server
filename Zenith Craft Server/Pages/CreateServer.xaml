@@ -7,7 +7,6 @@
     xmlns:dev="using:DevWinUI"
     xmlns:local="using:Zenith_Craft_Server.Pages"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    NavigationCacheMode="Required"
     mc:Ignorable="d">
 
     <Grid Margin="10" CornerRadius="10">
@@ -24,35 +23,41 @@
                         <dev:SettingsExpander.Items>
                             <dev:SettingsCard Header="Imagen / Vista Previa">
                                 <StackPanel Orientation="Horizontal">
-                                    <Button Background="#05000000">
-                                        <Rectangle Width="100" Height="100">
+                                    <Button
+                                        Width="100"
+                                        Height="100"
+                                        Background="#05000000">
+                                        <Rectangle
+                                            Width="100"
+                                            Height="100"
+                                            Margin="-12,-6">
                                             <Rectangle.Fill>
-                                                <ImageBrush />
+                                                <ImageBrush ImageSource="/Assets/Square150x150Logo.png" />
                                             </Rectangle.Fill>
                                         </Rectangle>
                                     </Button>
                                     <StackPanel>
                                         <TextBlock
                                             Width="400"
-                                            Margin="10,5,0,0"
-                                            FontSize="28"
+                                            Margin="10,-6,0,0"
+                                            FontSize="32"
                                             Text="{x:Bind NameServerBox.Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                                         <TextBlock
                                             Width="400"
                                             Margin="10,0,0,0"
-                                            FontSize="22"
+                                            FontSize="26"
                                             Text="{x:Bind MOTDServerBox.Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                             TextWrapping="Wrap" />
                                     </StackPanel>
                                 </StackPanel>
                             </dev:SettingsCard>
-                            <dev:SettingsCard Header="Nombre" Description="El Nombre es Local y no Aparecera en la pantalla de Multijugador en Minecraft.">
+                            <dev:SettingsCard Description="El Nombre es Local y no Aparecera en la pantalla de Multijugador en Minecraft." Header="Nombre">
                                 <TextBox
                                     x:Name="NameServerBox"
                                     MinWidth="200"
                                     MaxLength="75" />
                             </dev:SettingsCard>
-                            <dev:SettingsCard Header="MOTD" Description="Maximo 2 lineas y - de 60 Caracteres, o Puede fallar.">
+                            <dev:SettingsCard Description="Maximo 2 lineas y - de 60 Caracteres, o Puede fallar." Header="MOTD">
                                 <TextBox
                                     x:Name="MOTDServerBox"
                                     MinWidth="200"
@@ -62,9 +67,12 @@
                             </dev:SettingsCard>
                         </dev:SettingsExpander.Items>
                     </dev:SettingsExpander>
-                    <dev:SettingsExpander Description="Selecciona la version Base de Minecraft y luego sus Loaders" Header="Version Base">
+                    <dev:SettingsExpander
+                        Description="Selecciona la version Base de Minecraft y luego sus Loaders"
+                        Header="Version Base"
+                        IsExpanded="True">
                         <dev:SettingsExpander.HeaderIcon>
-                            <FontIcon Glyph="&#xE91B;" />
+                            <FontIcon Glyph="&#xE7FC;" />
                         </dev:SettingsExpander.HeaderIcon>
                         <ComboBox MinWidth="200" SelectedIndex="0">
                             <ComboBox.Items>
@@ -75,6 +83,9 @@
 
                         <dev:SettingsExpander.Items>
                             <dev:SettingsCard Header="Loader">
+                                <dev:SettingsCard.HeaderIcon>
+                                    <FontIcon Glyph="&#xEA86;" />
+                                </dev:SettingsCard.HeaderIcon>
                                 <ComboBox MinWidth="200" SelectedIndex="0">
                                     <ComboBox.Items>
                                         <!--  Aqui deben estar Todos los Loaders Disponible para la version seleccionada, Ahora q lo pienso lo hare local aunq solo a una version, mas adelante lo hare de manera Remota descargando listas y archivos  -->
@@ -83,6 +94,9 @@
                                 </ComboBox>
                             </dev:SettingsCard>
                             <dev:SettingsCard Header="Version del loader">
+                                <dev:SettingsCard.HeaderIcon>
+                                    <FontIcon Glyph="&#xF2C7;" />
+                                </dev:SettingsCard.HeaderIcon>
                                 <ComboBox MinWidth="200" SelectedIndex="0">
                                     <ComboBox.Items>
                                         <!--  Aqui deben estar Todos los Loaders Disponible para la version seleccionada, Ahora q lo pienso lo hare local aunq solo a una version, mas adelante lo hare de manera Remota descargando listas y archivos  -->
@@ -94,9 +108,50 @@
                     </dev:SettingsExpander>
                     <dev:SettingsExpander Description="Configuracion Inicial para el Servidor" Header="Configuraciones Basicas">
                         <dev:SettingsExpander.HeaderIcon>
-                            <FontIcon Glyph="&#xE91B;" />
+                            <FontIcon Glyph="&#xE90F;" />
                         </dev:SettingsExpander.HeaderIcon>
-                        <!--Pre Ajustes-->
+                        <dev:SettingsExpander.Items>
+                            <dev:SettingsCard Description="Establece la Cantidad de Jugadores Maximo" Header="Max Player">
+                                <dev:SettingsCard.HeaderIcon>
+                                    <FontIcon Glyph="&#xEAD4;" />
+                                </dev:SettingsCard.HeaderIcon>
+                                <NumberBox
+                                    MinWidth="200"
+                                    Minimum="1"
+                                    SmallChange="5"
+                                    SpinButtonPlacementMode="Inline"
+                                    Value="20" />
+                            </dev:SettingsCard>
+                            <dev:SettingsCard Description="Establece el Puerto del Servidor" Header="Puerto">
+                                <dev:SettingsCard.HeaderIcon>
+                                    <FontIcon Glyph="&#xE839;" />
+                                </dev:SettingsCard.HeaderIcon>
+                                <NumberBox
+                                    MinWidth="200"
+                                    Minimum="1"
+                                    SpinButtonPlacementMode="Inline"
+                                    Value="12345" />
+                            </dev:SettingsCard>
+                            <dev:SettingsCard Description="Establece el Nivel de Dificultad del Servidor" Header="Dificultad">
+                                <dev:SettingsCard.HeaderIcon>
+                                    <FontIcon Glyph="&#xEEA1;" />
+                                </dev:SettingsCard.HeaderIcon>
+                                <ComboBox MinWidth="200" SelectedIndex="2">
+                                    <ComboBox.Items>
+                                        <ComboBoxItem Content="Pacifico" Tag="peaceful"/>
+                                        <ComboBoxItem Content="Facil" Tag="easy"/>
+                                        <ComboBoxItem Content="Normal" Tag="normal"/>
+                                        <ComboBoxItem Content="Dificil" Tag="hard"/>
+                                    </ComboBox.Items>
+                                </ComboBox>
+                            </dev:SettingsCard>
+                        </dev:SettingsExpander.Items>
+                    </dev:SettingsExpander>
+                    <dev:SettingsExpander Description="Configuracion Inicial para el Servidor" Header="Configuraciones Avanzadas">
+                        <dev:SettingsExpander.HeaderIcon>
+                            <FontIcon Glyph="&#xE713;" />
+                        </dev:SettingsExpander.HeaderIcon>
+                        <!--  Pre Ajustes  -->
                         <ComboBox MinWidth="200" SelectedIndex="0">
                             <ComboBox.Items>
                                 <ComboBoxItem Content="Conf. Alta" ToolTipService.ToolTip="Establece un 75% de los recursos" />
@@ -106,21 +161,50 @@
                         </ComboBox>
 
                         <dev:SettingsExpander.Items>
-                            <dev:SettingsCard Header="RAM">
-                                <ComboBox IsEditable="True" MinWidth="200" SelectedIndex="0">
+                            <dev:SettingsCard Description="Establece la Cantidad de Ram que usara el Servidor en GB" Header="RAM">
+                                <dev:SettingsCard.HeaderIcon>
+                                    <FontIcon Glyph="&#xEEA0;" />
+                                </dev:SettingsCard.HeaderIcon>
+                                <ComboBox
+                                    MinWidth="200"
+                                    IsEditable="True"
+                                    SelectedIndex="0">
                                     <ComboBox.Items>
-                                        <!--Aqui deberian de aparecer en 2GB en 2GB la Cantidad de RAM, 1, 2, 4, 6...-->
-                                        <ComboBoxItem Content="1"/>
+                                        <!--  Aqui deberian de aparecer en 2GB en 2GB la Cantidad de RAM, 1, 2, 4, 6...  -->
+                                        <ComboBoxItem Content="1" />
+                                        <ComboBoxItem Content="2" />
+                                        <ComboBoxItem Content="4" />
+                                        <ComboBoxItem Content="6" />
+                                        <ComboBoxItem Content="8" />
+                                        <ComboBoxItem Content="10" />
+                                        <ComboBoxItem Content="12" />
+                                        <ComboBoxItem Content="14" />
+                                        <ComboBoxItem Content="16" />
                                     </ComboBox.Items>
                                 </ComboBox>
                             </dev:SettingsCard>
-                            <dev:SettingsCard Header="Hilos del CPU">
+                            <dev:SettingsCard Description="Establece la Cantidad de Hilos del CPU que usara el servidor" Header="Hilos del CPU">
+                                <dev:SettingsCard.HeaderIcon>
+                                    <FontIcon Glyph="&#xEEA1;" />
+                                </dev:SettingsCard.HeaderIcon>
                                 <ComboBox MinWidth="200" SelectedIndex="0">
                                     <ComboBox.Items>
-                                        <!--Aqui deberian de aparecer en 2 en 2 los Hilos del CPU iniciando con 1, 2, 4, 6...-->
+                                        <!--  Aqui deberian de aparecer en 2 en 2 los Hilos del CPU iniciando con 1, 2, 4, 6...  -->
                                         <ComboBoxItem Content="1" ToolTipService.ToolTip="" />
                                         <ComboBoxItem Content="2" ToolTipService.ToolTip="" />
                                         <ComboBoxItem Content="4" ToolTipService.ToolTip="" />
+                                    </ComboBox.Items>
+                                </ComboBox>
+                            </dev:SettingsCard>
+                            <dev:SettingsCard Description="Establece el Java que usara el servidor" Header="Java">
+                                <dev:SettingsCard.HeaderIcon>
+                                    <FontIcon Glyph="&#xE9F5;" />
+                                </dev:SettingsCard.HeaderIcon>
+                                <ComboBox MinWidth="200" SelectedIndex="0">
+                                    <ComboBox.Items>
+                                        <ComboBoxItem Content="Java 8" ToolTipService.ToolTip="" />
+                                        <ComboBoxItem Content="Java 16" ToolTipService.ToolTip="" />
+                                        <ComboBoxItem Content="Java 21" ToolTipService.ToolTip="" />
                                     </ComboBox.Items>
                                 </ComboBox>
                             </dev:SettingsCard>
