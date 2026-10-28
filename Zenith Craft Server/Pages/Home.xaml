@@ -12,8 +12,7 @@
 
     <Grid>
         <Grid VerticalAlignment="Center">
-            <StackPanel>
-
+            <StackPanel x:Name="isFirstOpen" Visibility="Collapsed">
                 <TextBlock HorizontalAlignment="Center" Text="Crea tu Primer servidor" Padding="10"/>
                 <Button
                     x:Name="CreateSerber"

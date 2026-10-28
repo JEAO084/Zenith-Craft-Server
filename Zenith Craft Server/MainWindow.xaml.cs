@@ -34,6 +34,7 @@ namespace Zenith_Craft_Server
             AppWindow.TitleBar.ButtonInactiveBackgroundColor = x;
             AppWindow.TitleBar.ButtonPressedBackgroundColor = x;
             AppWindow.TitleBar.ButtonPressedForegroundColor = x;
+            SelectNavigationItem("Home");
         }
 
         public void LoadStateBack()
@@ -117,9 +118,7 @@ namespace Zenith_Craft_Server
 
         private void serverSelect_Click(SplitButton sender, SplitButtonClickEventArgs args)
         {
-            navView.SelectedItem = navView.MenuItems
-                .OfType<NavigationViewItem>()
-                .FirstOrDefault(item => (string)item.Tag == "Home");
+            SelectNavigationItem("Home");
         }
     }
 }
