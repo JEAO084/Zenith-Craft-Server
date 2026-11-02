@@ -426,11 +426,16 @@ namespace Zenith_Craft_Server.Pages
             return string.Concat(name.Select(c => invalid.Contains(c) ? '_' : c));
         }
 
-        private void SelectComboBoxItemByTag(ComboBox combo, object targetTag)
+        // MODIFICADO: Manejo defensivo con comprobación de nulos para evitar NullReferenceException al seleccionar items por Tag
+        private void SelectComboBoxItemByTag(ComboBox? combo, object? targetTag)
         {
+            if (combo?.Items == null || targetTag == null)
+                return;
+
+            var targetStr = targetTag.ToString();
             foreach (var item in combo.Items)
             {
-                if (item is ComboBoxItem cbi && cbi.Tag?.ToString() == targetTag.ToString())
+                if (item is ComboBoxItem cbi && cbi.Tag != null && cbi.Tag.ToString() == targetStr)
                 {
                     combo.SelectedItem = cbi;
                     return;
