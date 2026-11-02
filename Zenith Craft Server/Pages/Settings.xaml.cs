@@ -22,6 +22,14 @@ namespace Zenith_Craft_Server.Pages
         {
             SeleccionarItemPorTag(selectBackdrop, Settingz.Backdrop);
             SeleccionarItemPorTag(selectTheme, Settingz.Theme);
+            // AGREGADO: Carga del estado guardado de betas
+            toggleBetaVersions.IsOn = Settingz.ShowBetaVersions;
+        }
+
+        // AGREGADO: Manejador para guardar la preferencia de versiones beta
+        private void toggleBetaVersions_Toggled(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        {
+            Settingz.ShowBetaVersions = toggleBetaVersions.IsOn;
         }
 
         private void SeleccionarItemPorTag(ComboBox comboBox, string valorTag)

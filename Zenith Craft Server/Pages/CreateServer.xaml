@@ -7,6 +7,7 @@
     xmlns:dev="using:DevWinUI"
     xmlns:local="using:Zenith_Craft_Server.Pages"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Loaded="Page_Loaded"
     mc:Ignorable="d">
 
     <Grid Margin="10" CornerRadius="10">
@@ -23,16 +24,20 @@
                         <dev:SettingsExpander.Items>
                             <dev:SettingsCard Header="Imagen / Vista Previa">
                                 <StackPanel Orientation="Horizontal">
+                                    <!-- Botón para seleccionar icono personalizado del servidor -->
                                     <Button
+                                        x:Name="SelectIconButton"
                                         Width="100"
                                         Height="100"
-                                        Background="#05000000">
+                                        Background="#05000000"
+                                        Click="SelectIconButton_Click"
+                                        ToolTipService.ToolTip="Haz clic para seleccionar un icono para el servidor (64x64 PNG)">
                                         <Rectangle
                                             Width="100"
                                             Height="100"
                                             Margin="-12,-6">
                                             <Rectangle.Fill>
-                                                <ImageBrush ImageSource="/Assets/Square150x150Logo.png" />
+                                                <ImageBrush x:Name="ServerIconPreview" ImageSource="/Assets/Square150x150Logo.png" />
                                             </Rectangle.Fill>
                                         </Rectangle>
                                     </Button>
@@ -41,12 +46,12 @@
                                             Width="400"
                                             Margin="10,-6,0,0"
                                             FontSize="32"
-                                            Text="{x:Bind NameServerBox.Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            Text="{x:Bind NameServerBox.Text, Mode=OneWay}" />
                                         <TextBlock
                                             Width="400"
                                             Margin="10,0,0,0"
                                             FontSize="26"
-                                            Text="{x:Bind MOTDServerBox.Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            Text="{x:Bind MOTDServerBox.Text, Mode=OneWay}"
                                             TextWrapping="Wrap" />
                                     </StackPanel>
                                 </StackPanel>
@@ -55,7 +60,8 @@
                                 <TextBox
                                     x:Name="NameServerBox"
                                     MinWidth="200"
-                                    MaxLength="75" />
+                                    MaxLength="75"
+                                    Text="Zenith Server" />
                             </dev:SettingsCard>
                             <dev:SettingsCard Description="Maximo 2 lineas y - de 60 Caracteres, o Puede fallar." Header="MOTD">
                                 <TextBox
@@ -63,10 +69,12 @@
                                     MinWidth="200"
                                     AcceptsReturn="True"
                                     MaxLength="60"
+                                    Text="Un servidor de Zenith Craft"
                                     TextWrapping="Wrap" />
                             </dev:SettingsCard>
                         </dev:SettingsExpander.Items>
                     </dev:SettingsExpander>
+
                     <dev:SettingsExpander
                         Description="Selecciona la version Base de Minecraft y luego sus Loaders"
                         Header="Version Base"
@@ -74,10 +82,14 @@
                         <dev:SettingsExpander.HeaderIcon>
                             <FontIcon Glyph="&#xE7FC;" />
                         </dev:SettingsExpander.HeaderIcon>
-                        <ComboBox MinWidth="200" SelectedIndex="0">
+                        <!-- Selector de versión base con ToolTip indicando dónde activar betas -->
+                        <ComboBox
+                            x:Name="BaseVersionComboBox"
+                            MinWidth="200"
+                            SelectionChanged="BaseVersionComboBox_SelectionChanged"
+                            ToolTipService.ToolTip="Muestra las versiones estables (release). Para ver betas y snapshots, actívalas en Ajustes > Mostrar versiones Beta / Snapshots.">
                             <ComboBox.Items>
-                                <!--  Aqui deben estar Todas Las Versiones, por ahora solo me enfocare en Minecraft, dps mas adelante en otros juegos o incluso Apps  -->
-                                <ComboBoxItem Content="Loading Versions" ToolTipService.ToolTip="Por Ahora no esta en funcionamiento" />
+                                <ComboBoxItem Content="Cargando versiones..." />
                             </ComboBox.Items>
                         </ComboBox>
 
@@ -86,10 +98,13 @@
                                 <dev:SettingsCard.HeaderIcon>
                                     <FontIcon Glyph="&#xEA86;" />
                                 </dev:SettingsCard.HeaderIcon>
-                                <ComboBox MinWidth="200" SelectedIndex="0">
+                                <!-- Selector de Loader compatible (Forge, Fabric, NeoForge, Paper, Spigot, Purpur, SpongeForge) -->
+                                <ComboBox
+                                    x:Name="LoaderComboBox"
+                                    MinWidth="200"
+                                    SelectionChanged="LoaderComboBox_SelectionChanged">
                                     <ComboBox.Items>
-                                        <!--  Aqui deben estar Todos los Loaders Disponible para la version seleccionada, Ahora q lo pienso lo hare local aunq solo a una version, mas adelante lo hare de manera Remota descargando listas y archivos  -->
-                                        <ComboBoxItem Content="Paper" ToolTipService.ToolTip="Por Ahora no esta en funcionamiento" />
+                                        <ComboBoxItem Content="Paper" />
                                     </ComboBox.Items>
                                 </ComboBox>
                             </dev:SettingsCard>
@@ -97,15 +112,18 @@
                                 <dev:SettingsCard.HeaderIcon>
                                     <FontIcon Glyph="&#xF2C7;" />
                                 </dev:SettingsCard.HeaderIcon>
-                                <ComboBox MinWidth="200" SelectedIndex="0">
+                                <!-- Selector de versión del loader con '+' al inicio para la recomendada -->
+                                <ComboBox
+                                    x:Name="LoaderVersionComboBox"
+                                    MinWidth="200">
                                     <ComboBox.Items>
-                                        <!--  Aqui deben estar Todos los Loaders Disponible para la version seleccionada, Ahora q lo pienso lo hare local aunq solo a una version, mas adelante lo hare de manera Remota descargando listas y archivos  -->
-                                        <ComboBoxItem Content="26.3.-.-" ToolTipService.ToolTip="Por Ahora no esta en funcionamiento" />
+                                        <ComboBoxItem Content="Cargando..." />
                                     </ComboBox.Items>
                                 </ComboBox>
                             </dev:SettingsCard>
                         </dev:SettingsExpander.Items>
                     </dev:SettingsExpander>
+
                     <dev:SettingsExpander Description="Configuracion Inicial para el Servidor" Header="Configuraciones Basicas">
                         <dev:SettingsExpander.HeaderIcon>
                             <FontIcon Glyph="&#xE90F;" />
@@ -116,6 +134,7 @@
                                     <FontIcon Glyph="&#xEAD4;" />
                                 </dev:SettingsCard.HeaderIcon>
                                 <NumberBox
+                                    x:Name="MaxPlayersNumberBox"
                                     MinWidth="200"
                                     Minimum="1"
                                     SmallChange="5"
@@ -127,36 +146,46 @@
                                     <FontIcon Glyph="&#xE839;" />
                                 </dev:SettingsCard.HeaderIcon>
                                 <NumberBox
+                                    x:Name="PortNumberBox"
                                     MinWidth="200"
                                     Minimum="1"
+                                    Maximum="65535"
                                     SpinButtonPlacementMode="Inline"
-                                    Value="12345" />
+                                    Value="25565" />
                             </dev:SettingsCard>
                             <dev:SettingsCard Description="Establece el Nivel de Dificultad del Servidor" Header="Dificultad">
                                 <dev:SettingsCard.HeaderIcon>
                                     <FontIcon Glyph="&#xEEA1;" />
                                 </dev:SettingsCard.HeaderIcon>
-                                <ComboBox MinWidth="200" SelectedIndex="2">
+                                <ComboBox
+                                    x:Name="DifficultyComboBox"
+                                    MinWidth="200"
+                                    SelectedIndex="2">
                                     <ComboBox.Items>
-                                        <ComboBoxItem Content="Pacifico" Tag="peaceful"/>
-                                        <ComboBoxItem Content="Facil" Tag="easy"/>
-                                        <ComboBoxItem Content="Normal" Tag="normal"/>
-                                        <ComboBoxItem Content="Dificil" Tag="hard"/>
+                                        <ComboBoxItem Content="Pacifico" Tag="peaceful" />
+                                        <ComboBoxItem Content="Facil" Tag="easy" />
+                                        <ComboBoxItem Content="Normal" Tag="normal" />
+                                        <ComboBoxItem Content="Dificil" Tag="hard" />
                                     </ComboBox.Items>
                                 </ComboBox>
                             </dev:SettingsCard>
                         </dev:SettingsExpander.Items>
                     </dev:SettingsExpander>
+
                     <dev:SettingsExpander Description="Configuracion Inicial para el Servidor" Header="Configuraciones Avanzadas">
                         <dev:SettingsExpander.HeaderIcon>
                             <FontIcon Glyph="&#xE713;" />
                         </dev:SettingsExpander.HeaderIcon>
-                        <!--  Pre Ajustes  -->
-                        <ComboBox MinWidth="200" SelectedIndex="0">
+                        <!-- Pre Ajustes para cálculo automático de RAM y CPU (75%, 50%, 25%) -->
+                        <ComboBox
+                            x:Name="PresetComboBox"
+                            MinWidth="200"
+                            SelectedIndex="1"
+                            SelectionChanged="PresetComboBox_SelectionChanged">
                             <ComboBox.Items>
-                                <ComboBoxItem Content="Conf. Alta" ToolTipService.ToolTip="Establece un 75% de los recursos" />
-                                <ComboBoxItem Content="Conf. Media" ToolTipService.ToolTip="Establece un 50% de los recursos" />
-                                <ComboBoxItem Content="Conf. Baja" ToolTipService.ToolTip="Establece un 25% de los recursos" />
+                                <ComboBoxItem Content="Conf. Alta" Tag="75" ToolTipService.ToolTip="Establece un 75% de los recursos disponibles del sistema" />
+                                <ComboBoxItem Content="Conf. Media" Tag="50" ToolTipService.ToolTip="Establece un 50% de los recursos disponibles del sistema" />
+                                <ComboBoxItem Content="Conf. Baja" Tag="25" ToolTipService.ToolTip="Establece un 25% de los recursos disponibles del sistema" />
                             </ComboBox.Items>
                         </ComboBox>
 
@@ -165,48 +194,78 @@
                                 <dev:SettingsCard.HeaderIcon>
                                     <FontIcon Glyph="&#xEEA0;" />
                                 </dev:SettingsCard.HeaderIcon>
+                                <!-- Selector de RAM de 2 en 2 (1, 2, 4, 6, 8, 10, 12, 14, 16...) -->
                                 <ComboBox
+                                    x:Name="RamComboBox"
                                     MinWidth="200"
-                                    IsEditable="True"
-                                    SelectedIndex="0">
+                                    IsEditable="True">
                                     <ComboBox.Items>
-                                        <!--  Aqui deberian de aparecer en 2GB en 2GB la Cantidad de RAM, 1, 2, 4, 6...  -->
-                                        <ComboBoxItem Content="1" />
-                                        <ComboBoxItem Content="2" />
-                                        <ComboBoxItem Content="4" />
-                                        <ComboBoxItem Content="6" />
-                                        <ComboBoxItem Content="8" />
-                                        <ComboBoxItem Content="10" />
-                                        <ComboBoxItem Content="12" />
-                                        <ComboBoxItem Content="14" />
-                                        <ComboBoxItem Content="16" />
+                                        <ComboBoxItem Content="1" Tag="1" />
+                                        <ComboBoxItem Content="2" Tag="2" />
+                                        <ComboBoxItem Content="4" Tag="4" />
+                                        <ComboBoxItem Content="6" Tag="6" />
+                                        <ComboBoxItem Content="8" Tag="8" />
+                                        <ComboBoxItem Content="10" Tag="10" />
+                                        <ComboBoxItem Content="12" Tag="12" />
+                                        <ComboBoxItem Content="14" Tag="14" />
+                                        <ComboBoxItem Content="16" Tag="16" />
                                     </ComboBox.Items>
                                 </ComboBox>
                             </dev:SettingsCard>
-                            <dev:SettingsCard Description="Establece la Cantidad de Hilos del CPU que usara el servidor" Header="Hilos del CPU">
+                            <dev:SettingsCard Description="Establece la Cantidad de Hilos del CPU que usara el servidor (controlado por flags de GC y afinidad de proceso)" Header="Hilos del CPU">
                                 <dev:SettingsCard.HeaderIcon>
                                     <FontIcon Glyph="&#xEEA1;" />
                                 </dev:SettingsCard.HeaderIcon>
-                                <ComboBox MinWidth="200" SelectedIndex="0">
+                                <!-- Selector de hilos de 2 en 2 (1, 2, 4, 6, 8...) según núcleos lógicos del sistema -->
+                                <ComboBox
+                                    x:Name="CpuThreadsComboBox"
+                                    MinWidth="200">
                                     <ComboBox.Items>
-                                        <!--  Aqui deberian de aparecer en 2 en 2 los Hilos del CPU iniciando con 1, 2, 4, 6...  -->
-                                        <ComboBoxItem Content="1" ToolTipService.ToolTip="" />
-                                        <ComboBoxItem Content="2" ToolTipService.ToolTip="" />
-                                        <ComboBoxItem Content="4" ToolTipService.ToolTip="" />
+                                        <ComboBoxItem Content="1" Tag="1" />
+                                        <ComboBoxItem Content="2" Tag="2" />
+                                        <ComboBoxItem Content="4" Tag="4" />
                                     </ComboBox.Items>
                                 </ComboBox>
                             </dev:SettingsCard>
-                            <dev:SettingsCard Description="Establece el Java que usara el servidor" Header="Java">
+                            <dev:SettingsCard Description="Establece el Java que usara el servidor (+ indica la version recomendada para la version de Minecraft y Loader seleccionados)" Header="Java">
                                 <dev:SettingsCard.HeaderIcon>
                                     <FontIcon Glyph="&#xE9F5;" />
                                 </dev:SettingsCard.HeaderIcon>
-                                <ComboBox MinWidth="200" SelectedIndex="0">
+                                <!-- Selector dinámico de versiones de Java con '+' al inicio para la recomendada -->
+                                <ComboBox
+                                    x:Name="JavaComboBox"
+                                    MinWidth="200">
                                     <ComboBox.Items>
-                                        <ComboBoxItem Content="Java 8" ToolTipService.ToolTip="" />
-                                        <ComboBoxItem Content="Java 16" ToolTipService.ToolTip="" />
-                                        <ComboBoxItem Content="Java 21" ToolTipService.ToolTip="" />
+                                        <ComboBoxItem Content="Java 8" Tag="8" />
+                                        <ComboBoxItem Content="Java 16" Tag="16" />
+                                        <ComboBoxItem Content="Java 17" Tag="17" />
+                                        <ComboBoxItem Content="+ Java 21 (LTS)" Tag="21" />
                                     </ComboBox.Items>
                                 </ComboBox>
+                            </dev:SettingsCard>
+                        </dev:SettingsExpander.Items>
+                    </dev:SettingsExpander>
+
+                    <!-- AGREGADO: Sección de Creación y Notificaciones para el Servidor -->
+                    <dev:SettingsExpander Description="Revisa y finaliza la creacion de tu nuevo servidor" Header="Crear Servidor" IsExpanded="True">
+                        <dev:SettingsExpander.HeaderIcon>
+                            <FontIcon Glyph="&#xE710;" />
+                        </dev:SettingsExpander.HeaderIcon>
+                        <Button
+                            x:Name="CreateServerButton"
+                            HorizontalAlignment="Right"
+                            Click="CreateServerButton_Click"
+                            Content="Crear Servidor"
+                            Style="{StaticResource AccentButtonStyle}" />
+                        <dev:SettingsExpander.Items>
+                            <dev:SettingsCard>
+                                <StackPanel Spacing="10">
+                                    <ProgressBar x:Name="OperationProgressBar" IsIndeterminate="True" Visibility="Collapsed" />
+                                    <InfoBar
+                                        x:Name="ServerStatusInfoBar"
+                                        IsOpen="False"
+                                        IsClosable="True" />
+                                </StackPanel>
                             </dev:SettingsCard>
                         </dev:SettingsExpander.Items>
                     </dev:SettingsExpander>

@@ -45,6 +45,17 @@
                     </ComboBox.Items>
                 </ComboBox>
             </dev:SettingsCard>
+
+            <!-- AGREGADO: Toggle para activar versiones Betas y Snapshots de Minecraft con tooltip informativo -->
+            <dev:SettingsCard Description="Permite seleccionar snapshots y versiones experimentales al crear un servidor" Header="Mostrar versiones Beta / Snapshots">
+                <dev:SettingsCard.HeaderIcon>
+                    <FontIcon Glyph="&#xEBE8;" />
+                </dev:SettingsCard.HeaderIcon>
+                <ToggleSwitch
+                    x:Name="toggleBetaVersions"
+                    Toggled="toggleBetaVersions_Toggled"
+                    ToolTipService.ToolTip="Habilita las versiones experimentales y snapshots de Minecraft en la pantalla de Crear Servidor." />
+            </dev:SettingsCard>
         </StackPanel>
     </Grid>
 </Page>
