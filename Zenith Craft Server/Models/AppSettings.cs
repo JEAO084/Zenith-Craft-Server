@@ -41,6 +41,14 @@ public class AppSettings : INotifyPropertyChanged
         set => SetProperty(ref _firstOpen, value);
     }
 
+    // AGREGADO: Configuración para activar/desactivar la visualización de versiones Betas y Snapshots
+    private bool _showBetaVersions = false;
+    public bool ShowBetaVersions
+    {
+        get => _showBetaVersions;
+        set => SetProperty(ref _showBetaVersions, value);
+    }
+
     // ----- Helper -----
     private bool SetProperty<T>(ref T field, T value, [CallerMemberName] string? name = null)
     {
